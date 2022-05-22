@@ -7,14 +7,20 @@ public class Level {
     private int bulletSpeed;
     private int bulletLag;
     private int bulletLevel;
+    private int bugLag;
 
     public Level(){
         this.level = 1;
-        this.ySpeed = 2;
+        this.ySpeed = 7;
         this.xSpeed = 0;
-        this.bulletSpeed = 5;
-        this.bulletLag = 10;
+        this.bulletSpeed = 4;
+        this.bulletLag = 12;
         this.bulletLevel = 1;
+        this.bugLag = 50;
+    }
+
+    public int getTargetScore(){
+        return this.level*160+13;
     }
 
     public int getLevel(){
@@ -99,5 +105,21 @@ public class Level {
 
     public void setBulletLevel(int level){
         this.level = level;
+    }
+
+    public int getBugLag(){
+        return this.bugLag;
+    }
+
+    public void setBugLag(int lag){
+        this.bugLag = lag;
+    }
+
+    public void decrementBugLag(){
+        this.bugLag--;
+    }
+
+    public void decrementBugLag(int decrement){
+        this.bugLag -= decrement;
     }
 }

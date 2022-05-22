@@ -10,10 +10,9 @@ import java.awt.Graphics;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.awt.Font;
 
 import gen.GameButton;
@@ -24,16 +23,16 @@ import gen.Score;
 public class COC extends JPanel{
     public final String LEFT = "LEFT";
     public final String RIGHT = "RIGHT"; 
+    public final String ENTER = "ENTER";
     private int LEFT_BOUND = 70;
     private int RIGHT_BOUND = 590;//inclusive of width
-    private int colorIdx = 0;
     private MainClass mainClass;
-    private BufferedImage BG_IMG;
+    private BufferedImage BG_IMG, CUR_SC_IMG=null, TOT_SC_IMG;
     private Score score;
     private Level level;
     private Font font;
-    private ArrayList<Bug> bugs;
     private Ship ship;
+    private BugDen den;
     private GameButton playBut;
     private boolean play = false, newGame = true;
 
@@ -48,10 +47,11 @@ public class COC extends JPanel{
     public void loadElements(){
         ImageLoader il =  new ImageLoader("coc/src/panel.png", "panel");
         BG_IMG = il.getBuffImage();
+        il.reloadImage("coc/src/progressbar.png", "progress");
+        TOT_SC_IMG = il.getBuffImage();
 
-        font = new Font("sans_serif", Font.BOLD, 18);
+        font = new Font("sans_serif", Font.BOLD, 21);
         score = new Score();
-        bugs = new ArrayList<Bug>();
 
         int butX= 394;
         int xMult = 102;
@@ -66,15 +66,13 @@ public class COC extends JPanel{
         playBut.setName("play");
         playBut.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
-                playingStatus(true);
-                //ship y = 437, x=330
+                playingStatus(!isPlay());
             }
         });
 
         helpBut.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
-                if(level.getBulletLag()>0)
-                    level.decrementBulletLag();
+
             }
         });
 
@@ -101,80 +99,56 @@ public class COC extends JPanel{
 
         if(newGame){
             level = new Level();
-            ship = new Ship(getCOC(), 330, 415);
+            ship = new Ship(getCOC(), score, 330, 450);
+            den = new BugDen(getCOC(), level, 4); //change later based on level
             getCOC().add(ship);
+            updateScoreIMG();
             updateUI();
-            //craete a layer of bugs initially
             newGame = false;
-        }
-
-        //runGame(); //for ship
-    }
-
-    public void runGame(){ 
-        Thread cocThread = new Thread(new Runnable() {
-            @Override
-            public void run(){
-
-                //while(isPlay())
-                    updateBugs(level);
-                    
-                    //if possible create a pattern of bugs
-                    //if()//row is cleared create a batch of bugs
-                    createBugs(1);
-                    //removeBugs();
-                    updateUI();
-                    try{
-                        Thread.sleep(80);
-                    }catch(Exception e){};
-                //}
-            }
-        });
-        cocThread.start();
-    }
-
-    public void createBugs(int layer){
-        for(int j=0; j<layer; j++){
-            int mult = (int)Math.floor((520 - 11*40)/11)+40; //11 maust be randomize later
-            int shift = 0; //if shift left or right to shoft row 
-            for(int i=0; i<11; i++){
-                Bug b = new Bug(LEFT_BOUND+mult*i, 90, (colorIdx%4)+1, shift);
-                bugs.add(b);
-                getCOC().add(b);
-            }
-            incrementColorIndex();
+            bindENTER(ENTER);
         }
     }
 
-    public void updateBugs(Level level){
-        for(Bug b: bugs)
-            b.update(level);
+    public void gameThreads(){
+        Thread shipThread = new Thread(ship);
+        Thread denThread = new Thread(den);
+        shipThread.start();
+        denThread.start();
     }
 
-    public void removeBugs(){
-        for (Iterator<Bug> iterator = bugs.iterator(); iterator.hasNext();) {
-            Bug bug = iterator.next();
-            if(!bug.isAlive()){
-                iterator.remove();
-                getCOC().remove(bug);
-                bug = null;
-            }
-        }
+    public void updateScoreIMG(){
+        int curLine = (int)Math.floor((Double.valueOf(score.getScore())/level.getTargetScore())*TOT_SC_IMG.getHeight());
+        if(curLine<TOT_SC_IMG.getHeight())
+            CUR_SC_IMG = TOT_SC_IMG.getSubimage(0, TOT_SC_IMG.getHeight()-curLine-1, TOT_SC_IMG.getWidth(), curLine+1);
+        else
+            levelUp(); 
+    }
+
+    public void levelUp(){
+        System.out.println("levelUO");
     }
 
     public void setKeyBindings(){
         ActionMap am = getActionMap();
         InputMap im = getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
-        String vkLeft = "LEFT";
-        String vkRight = "RIGHT";
 
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT,0), vkLeft);
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_A,0), vkLeft);
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT,0), vkRight);
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_D,0), vkRight);
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), LEFT);
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0), LEFT);
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), RIGHT);
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0), RIGHT);
         
-        am.put(vkLeft, new KeyAction(vkLeft));
-        am.put(vkRight, new KeyAction(vkRight));
+        am.put(LEFT, new KeyAction(LEFT));
+        am.put(RIGHT, new KeyAction(RIGHT));
+    }
+
+    public void bindENTER(String command){
+        InputMap im = getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), command);
+        if(!command.equals("none")){
+            ActionMap am = getActionMap();
+            am.put(command, new KeyAction(command));
+        }
     }
 
     private class KeyAction extends AbstractAction{
@@ -188,6 +162,10 @@ public class COC extends JPanel{
                     ship.moveLeft();
                 if(String.valueOf(e.getActionCommand()).equals(RIGHT))
                     ship.moveRight();
+                if((String.valueOf(e.getActionCommand()).equals(ENTER)) && den!=null){
+                    gameThreads();
+                    bindENTER("none");
+                }
             }
         }
 
@@ -205,14 +183,6 @@ public class COC extends JPanel{
         return this.level;
     }
 
-    public int getColorIndex(){
-        return this.colorIdx;
-    }
-
-    public void incrementColorIndex(){
-        this.colorIdx++;
-    }
-
     public int getRightBound(){
         return this.RIGHT_BOUND;
     }
@@ -223,6 +193,14 @@ public class COC extends JPanel{
 
     public COC getCOC(){
         return this;
+    }
+
+    public BugDen getDen(){
+        return this.den;
+    }
+
+    public Ship getShip(){
+        return this.ship;
     }
 
     public MainClass getMainClass(){
@@ -242,6 +220,11 @@ public class COC extends JPanel{
         super.paintComponent(g);
 
         g.drawImage(BG_IMG, 0, 0, null);
+        if(CUR_SC_IMG!=null)
+            g.drawImage(CUR_SC_IMG, 656, 98+TOT_SC_IMG.getHeight()-CUR_SC_IMG.getHeight(), null); 
+        g.setColor(Color.black);
+        g.setFont(font);
+        g.drawString(String.valueOf(score.getScore()), 44, 50);
     }
     
 }

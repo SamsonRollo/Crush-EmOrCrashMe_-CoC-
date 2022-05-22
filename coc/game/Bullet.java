@@ -13,7 +13,7 @@ public class Bullet extends GameObject{
 
     @Override
     protected boolean calculateAlive() {
-        if(getY() <= 90)
+        if(getY() <= 85)
             return false;
         return true;
     }

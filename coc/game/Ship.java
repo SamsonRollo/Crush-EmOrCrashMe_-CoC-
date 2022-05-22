@@ -4,20 +4,25 @@ package coc.game;
 import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
 import java.util.Iterator;
+
+import gen.Score;
+
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class Ship extends GameObject {
+public class Ship extends GameObject implements Runnable{
     private COC coc;
     private int LEFT_BOUND;
     private int RIGHT_BOUND;
     private int speed = 21;
     private ArrayList<Bullet> bullets;
+    private Score score;
 
-    public Ship(COC coc, int x, int y){
+    public Ship(COC coc, Score score, int x, int y){
         this.coc = coc;
         this.LEFT_BOUND = coc.getLeftBound();
         this.RIGHT_BOUND = coc.getRightBound();
+        this.score = score;
         IMG_PATH = "coc/src/weapon.png";
         setGameObject("bug", x, y);
         setInitPoint(x, y);
@@ -40,40 +45,37 @@ public class Ship extends GameObject {
                 updateShipPosition();
             }
         });
-
-        produceBullets();
     }
 
-    public void produceBullets(){
-        Thread bulleThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                int accumLag = coc.getLevel().getBulletLag();
-                while(coc.isPlay()){
-                    updateBullets(coc.getLevel().getBulletSpeed());
-                    if(accumLag>=coc.getLevel().getBulletLag()){
-                        createBullet();
-                        accumLag = 0;
-                    }
-                    removeBullets();
-                    coc.updateUI();
-                    accumLag++;
-                    try{
-                        Thread.sleep(20);
-                    }catch(Exception e){};
-                }
+    @Override
+    public void run(){
+        int accumLag = coc.getLevel().getBulletLag();
+        while(coc.isPlay()){
+            updateBullets(coc.getLevel().getBulletSpeed());
+            if(accumLag>=coc.getLevel().getBulletLag()){
+                createBullet();
+                accumLag = 0;
             }
-        });
-        bulleThread.start();
+            removeBullets();
+            coc.updateUI();
+            accumLag++;
+            try{
+                Thread.sleep(20);
+            }catch(Exception e){};
+        }
     }
 
     public void updateBullets(int bulletSpeed){
-        for(Bullet b : bullets)
-            b.updateBullet(bulletSpeed);
+        try{
+            for(Bullet b : bullets){
+                b.updateBullet(bulletSpeed);
+                bugHit(b);
+            }
+        }catch(Exception e){}
     }
 
     public void createBullet(){
-        Bullet b = new Bullet(coc.getLevel().getBulletLevel(), getX()+15, 415);
+        Bullet b = new Bullet(coc.getLevel().getBulletLevel(), getX()+13, 450);
         bullets.add(b);
         coc.add(b);
     }
@@ -87,6 +89,20 @@ public class Ship extends GameObject {
                 bullet = null;
             }
         }
+    }
+
+    public void bugHit(Bullet bullet){
+        try{
+            for(Bug bug : coc.getDen().getBugs()){
+                if(bullet.getRectangle().intersects(bug.getRectangle())){
+                    bullet.setAlive(false);
+                    bug.setAlive(false);
+                    score.incrementScore(2);
+                    coc.updateScoreIMG();
+                    return;
+                }
+            }
+        }catch(Exception e){}
     }
 
     private void updateShipPosition(){;
