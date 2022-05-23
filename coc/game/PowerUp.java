@@ -45,13 +45,10 @@ public class PowerUp extends GameObject implements Runnable{
     public void executePowerUp(int selectedPowerUp){
         //insert question pop up here
         if(selectedPowerUp%11==0){
-            System.out.println("all");
             coc.getDen().killAllBugs();
         } else if(selectedPowerUp%5==0){
-            System.out.println("freeze");
             coc.getDen().setFreeze(true);
         }else{
-            System.out.println("level");
             coc.getLevel().setBulletLevel(2);
         }
         setAlive(false);

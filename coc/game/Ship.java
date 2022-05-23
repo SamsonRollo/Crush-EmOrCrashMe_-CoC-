@@ -2,7 +2,7 @@
 package coc.game;
 
 import java.awt.event.MouseMotionAdapter;
-import java.util.ArrayList;
+import java.util.Vector;
 import java.util.Iterator;
 import java.util.Random;
 
@@ -16,7 +16,7 @@ public class Ship extends GameObject implements Runnable{
     private int LEFT_BOUND;
     private int RIGHT_BOUND;
     private int speed = 21;
-    private ArrayList<Bullet> bullets;
+    private Vector<Bullet> bullets;
     private Score score;
     private int threadTimer = 20;
 
@@ -29,7 +29,7 @@ public class Ship extends GameObject implements Runnable{
         setGameObject("bug", x, y);
         setInitPoint(x, y);
 
-        bullets = new ArrayList<Bullet>();
+        bullets = new Vector<Bullet>();
 
         addMouseMotionListener(new MouseMotionAdapter(){
             public void mouseDragged(MouseEvent e){
@@ -54,14 +54,15 @@ public class Ship extends GameObject implements Runnable{
         int accumLag = coc.getLevel().getBulletLag();
         int bulletUpgradeTimer = 0;
         int powerupctr = 0;
-        int powerupLag = (new Random().nextInt(6741 + 1 - 810)+810);
+        int powerupLag = (new Random().nextInt((int)Math.floor(30000/threadTimer) + 1 - (int)Math.floor(5000/threadTimer))+(int)Math.floor(5000/threadTimer));
         while(coc.isPlay()){
 
             if(powerupctr>=powerupLag){
                 PowerUp pu = new PowerUp(coc);
                 pu.runPowerUp();
                 powerupctr = 0;
-                powerupLag = (new Random().nextInt(6741 + 1 - 810)+810);
+                powerupLag = (new Random().nextInt((int)Math.floor(30000/threadTimer) + 1 - (int)Math.floor(5000/threadTimer))+(int)Math.floor(5000/threadTimer));
+        
             }
 
             updateBullets(coc.getLevel().getBulletSpeed());
@@ -82,9 +83,8 @@ public class Ship extends GameObject implements Runnable{
             accumLag++;
             powerupctr++;
 
-            try{
-                coc.updateUI();
-            }catch(Exception e){}
+            coc.updateUI();
+
             try{
                 Thread.sleep(getThreadTimer());
             }catch(Exception e){};
@@ -101,12 +101,10 @@ public class Ship extends GameObject implements Runnable{
     }
 
     public void updateBullets(int bulletSpeed){
-        try{
-            for(Bullet b : bullets){
-                b.updateBullet(bulletSpeed);
-                bugHit(b);
-            }
-        }catch(Exception e){}
+        for(Bullet b : bullets){
+            b.updateBullet(bulletSpeed);
+            bugHit(b);
+        }
     }
 
     public void createBullet(){
@@ -116,16 +114,14 @@ public class Ship extends GameObject implements Runnable{
     }
 
     public void removeBullets(){
-        try{
-            for (Iterator<Bullet> iterator = bullets.iterator(); iterator.hasNext();) {
-                Bullet bullet = iterator.next();
-                if(!bullet.isAlive()){
-                    iterator.remove();
-                    coc.remove(bullet);
-                    bullet = null;
-                }
+        for (Iterator<Bullet> iterator = bullets.iterator(); iterator.hasNext();) {
+            Bullet bullet = iterator.next();
+            if(!bullet.isAlive()){
+                iterator.remove();
+                coc.remove(bullet);
+                bullet = null;
             }
-        }catch(Exception e){}
+        }
     }
 
     public void bugHit(Bullet bullet){
@@ -140,14 +136,12 @@ public class Ship extends GameObject implements Runnable{
                     return;
                 }
             }
-        }catch(Exception e){}
+        }catch(Exception e){};
     }
 
     public void killAllBullets(){
-        try{
-            for(Bullet b : bullets)
-                b.setAlive(false);
-        }catch(Exception e){}
+        for(Bullet b : bullets)
+            b.setAlive(false);
         removeBullets();
     }
 

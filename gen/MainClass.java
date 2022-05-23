@@ -2,6 +2,7 @@ package gen;
 
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Toolkit;
 import javax.swing.JFrame;
 
 //import aop.game.AOP;
@@ -33,6 +34,8 @@ public class MainClass extends JFrame{
 	// }
 
     public static void main(String[] args){
+        EventQueue queue = Toolkit.getDefaultToolkit().getSystemEventQueue();
+        queue.push(new EventQueueProxy());
 		EventQueue.invokeLater(new Runnable(){
 			public void run(){
 				new MainClass().setVisible(true);
