@@ -16,11 +16,11 @@ public class Level {
         this.bulletSpeed = 4;
         this.bulletLag = 12;
         this.bulletLevel = 1;
-        this.bugLag = 50;
+        this.bugLag = 50; //50
     }
 
     public int getTargetScore(){
-        return this.level*160+13;
+        return this.level*50+13; //back to 160
     }
 
     public int getLevel(){

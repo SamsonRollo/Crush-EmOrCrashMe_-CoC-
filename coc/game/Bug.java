@@ -3,10 +3,12 @@ package coc.game;
 import java.util.Random;
 
 public class Bug extends GameObject {
+    private COC coc;
     private int shift; //positive right shift, negative left shift
     private int shiftCount = 0;
 
-    public Bug(int x, int y, int colorNum, int shift){
+    public Bug(COC coc, int x, int y, int colorNum, int shift){
+        this.coc = coc;
         this.shift = shift;
         IMG_PATH = "coc/src/bug"+colorNum+".png";
         setGameObject("bug", x, y);    
@@ -27,12 +29,8 @@ public class Bug extends GameObject {
             deltaX = getX()+level.getXSpeed();
 
         moveCurrentPoint(deltaX, getY()+level.getYSpeed());
-        // if(getY()>=someThreshold)
-        //     notifyGameOver();
-    }
-
-    public void notifyGameOver(){
-        //coc.isGameOver();
+        if(getY()>=450 && !coc.isOverNotif())
+            coc.notifyGameOver();
     }
 
     @Override

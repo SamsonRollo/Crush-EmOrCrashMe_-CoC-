@@ -43,7 +43,7 @@ public class BugDen implements Runnable{
             int mulX = (int)Math.floor((520 - 11*40)/11)+40; //11 maust be randomize later
             int shift = 0; //if shift left or right to shoft row 
             for(int i=0; i<11; i++){
-                Bug b = new Bug(coc.getLeftBound()+mulX*i+shift, 85+mulY*j, (colorIdx%4)+1, shift);
+                Bug b = new Bug(coc, coc.getLeftBound()+mulX*i+shift, 85+mulY*j, (colorIdx%4)+1, shift);
                 bugs.add(b);
                 coc.add(b);
             }
@@ -65,6 +65,12 @@ public class BugDen implements Runnable{
                 bug = null;
             }
         }
+    }
+
+    public void killAllBugs(){
+        for(Bug b : bugs)
+            b.setAlive(false);
+        removeBugs();
     }
 
     public int getColorIndex(){

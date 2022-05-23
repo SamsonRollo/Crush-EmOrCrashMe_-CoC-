@@ -21,20 +21,24 @@ import gen.MainClass;
 import gen.Score;
 
 public class COC extends JPanel{
+    private MainClass mainClass;
     public final String LEFT = "LEFT";
     public final String RIGHT = "RIGHT"; 
     public final String ENTER = "ENTER";
     private int LEFT_BOUND = 70;
     private int RIGHT_BOUND = 590;//inclusive of width
-    private MainClass mainClass;
-    private BufferedImage BG_IMG, CUR_SC_IMG=null, TOT_SC_IMG;
+    private BufferedImage BG_IMG;
+    private BufferedImage TOT_SC_IMG, CUR_SC_IMG=null;
     private Score score;
     private Level level;
     private Font font;
     private Ship ship;
     private BugDen den;
-    private GameButton playBut;
-    private boolean play = false, newGame = true;
+    private GameButton playBut, helpBut, quitBut;
+    private boolean play = false, newGame = true, isEnter=false;
+    private boolean overNotif = false, levelNotif = false;
+    public Middler middler = null;
+    public PausePanel pausePanel;
 
     public COC(MainClass mainClass){
         this.mainClass = mainClass;
@@ -52,12 +56,14 @@ public class COC extends JPanel{
 
         font = new Font("sans_serif", Font.BOLD, 21);
         score = new Score();
+        middler = new Middler(getCOC());
+        pausePanel = new PausePanel(getCOC());
 
         int butX= 394;
         int xMult = 102;
         playBut = new GameButton(butX, 11, 87, 30);
-        GameButton helpBut = new GameButton(butX+xMult, 11, 87, 30);
-        GameButton quitBut = new GameButton(butX+xMult*2, 11, 87, 30);
+        helpBut = new GameButton(butX+xMult, 11, 87, 30);
+        quitBut = new GameButton(butX+xMult*2, 11, 87, 30);
 
         autoSetIcons(playBut, "play");
         autoSetIcons(helpBut, "help");
@@ -66,19 +72,24 @@ public class COC extends JPanel{
         playBut.setName("play");
         playBut.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
-                playingStatus(!isPlay());
+                playingStatus(!isPlay(), false);
             }
         });
 
         helpBut.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
-
+                //
             }
         });
 
         quitBut.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
-                //record score and back to main menu
+                setButtonsEnabled(false);
+                boolean curPlay = isPlay();
+                setPlay(false);
+                removeFloater();
+                QuitPanel qp = new QuitPanel(getCOC(), curPlay);
+                addFloater(qp);
             }
         });
 
@@ -89,13 +100,8 @@ public class COC extends JPanel{
         add(quitBut);
     }
 
-    public void playingStatus(boolean status){
-        if(playBut.getName().equals("play"))
-            playBut.setName("pause");
-        else
-            playBut.setName("play");
-        autoSetIcons(playBut, playBut.getName());
-        setPlay(status);
+    public void playingStatus(boolean status, boolean fromMenu){
+        interactPlayBut(status, fromMenu);
 
         if(newGame){
             level = new Level();
@@ -105,7 +111,6 @@ public class COC extends JPanel{
             updateScoreIMG();
             updateUI();
             newGame = false;
-            bindENTER(ENTER);
         }
     }
 
@@ -118,14 +123,101 @@ public class COC extends JPanel{
 
     public void updateScoreIMG(){
         int curLine = (int)Math.floor((Double.valueOf(score.getScore())/level.getTargetScore())*TOT_SC_IMG.getHeight());
+        curLine = curLine > 100 ? 100 : curLine;
+        if(!isLevelNotif() && curLine==100)
+            levelUp(); 
         if(curLine<TOT_SC_IMG.getHeight())
             CUR_SC_IMG = TOT_SC_IMG.getSubimage(0, TOT_SC_IMG.getHeight()-curLine-1, TOT_SC_IMG.getWidth(), curLine+1);
-        else
-            levelUp(); 
     }
 
     public void levelUp(){
-        System.out.println("levelUO");
+        setLevelNotif(true);
+        setButtonsEnabled(false);
+        setPlay(false);
+        removeFloater();
+        LevelUpPanel lp = new LevelUpPanel(getCOC());
+        addFloater(lp);
+    }
+
+    public void notifyGameOver(){
+        setOverNotif(true);
+        setButtonsEnabled(false);
+        setPlay(false);
+        GameOverPanel gop = new GameOverPanel(getCOC());
+        addFloater(gop);
+    }
+
+    public void showMiddler(){
+        getCOC().remove(getPause());
+        addFloater(getMiddler());
+        bindENTER(ENTER);
+    }
+
+    public void removeMiddler(){
+        getCOC().remove(middler);
+        getCOC().updateUI();
+    }
+
+    public void showPause(){
+        getCOC().remove(getMiddler());
+        addFloater(getPause());
+    }
+
+    public void removePause(){
+        getCOC().remove(pausePanel);
+        getCOC().updateUI();
+    }
+
+    public void addFloater(MenuPanel panel){
+        getCOC().add(panel);
+        getCOC().setComponentZOrder(panel, 0);
+        getCOC().updateUI();
+    }
+
+    public void removeFloater(){
+        getCOC().remove(getMiddler());
+        getCOC().remove(getPause());
+    }
+
+    public void cleanGame(){
+        ship.killAllBullets();
+        getCOC().remove(ship);
+        ship = null;
+        den.killAllBugs();
+        score.incrementTotalScore(score.getScore());
+        score.resetCurrentScore(); //maybe preserve this but add score to the main score later
+        updateScoreIMG();
+        playBut.setName("play");
+        autoSetIcons(playBut, "play");
+        removeFloater();
+        updateUI();
+        setOverNotif(false);
+        newGame = true;
+    }
+
+    public void interactPlayBut(boolean status, boolean fromMenu){
+        if(playBut.getName().equals("play")){
+            if(!fromMenu){ 
+                playBut.setName("pause");
+                showMiddler();
+            }else
+                showPause();
+        }else{
+            if(!fromMenu){
+                playBut.setName("play");
+                showPause();
+            }else
+                showMiddler();
+        }
+        if(!fromMenu)
+            autoSetIcons(playBut, playBut.getName());
+        setPlay(status);
+    }
+
+    public void setButtonsEnabled(boolean enable){
+        this.playBut.setEnabled(enable);
+        this.helpBut.setEnabled(enable);
+        this.quitBut.setEnabled(enable);
     }
 
     public void setKeyBindings(){
@@ -165,10 +257,44 @@ public class COC extends JPanel{
                 if((String.valueOf(e.getActionCommand()).equals(ENTER)) && den!=null){
                     gameThreads();
                     bindENTER("none");
+                    removeMiddler();
+                    setEnter(true);
                 }
             }
         }
 
+    }
+
+    public Middler getMiddler(){
+        return this.middler;
+    }
+
+    public PausePanel getPause(){
+        return this.pausePanel;
+    }
+
+    public boolean isLevelNotif(){
+        return this.levelNotif;
+    }
+
+    public void setLevelNotif(boolean notif){
+        this.levelNotif = notif;
+    }
+
+    public boolean isOverNotif(){
+        return this.overNotif;
+    }
+
+    public void setOverNotif(boolean notif){
+        this.overNotif = notif;
+    }
+
+    public boolean isEnter(){
+        return this.isEnter;
+    }
+
+    public void setEnter(boolean enter){
+        this.isEnter = enter;
     }
 
     public boolean isPlay(){
@@ -177,6 +303,12 @@ public class COC extends JPanel{
 
     public void setPlay(boolean play){
         this.play = play;
+        if(!play)
+            setEnter(false);
+    }
+
+    public boolean isNewGame(){
+        return this.newGame;
     }
 
     public Level getLevel(){
@@ -222,6 +354,7 @@ public class COC extends JPanel{
         g.drawImage(BG_IMG, 0, 0, null);
         if(CUR_SC_IMG!=null)
             g.drawImage(CUR_SC_IMG, 656, 98+TOT_SC_IMG.getHeight()-CUR_SC_IMG.getHeight(), null); 
+
         g.setColor(Color.black);
         g.setFont(font);
         g.drawString(String.valueOf(score.getScore()), 44, 50);

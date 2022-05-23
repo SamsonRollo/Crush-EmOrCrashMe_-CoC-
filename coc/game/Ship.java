@@ -31,7 +31,7 @@ public class Ship extends GameObject implements Runnable{
 
         addMouseMotionListener(new MouseMotionAdapter(){
             public void mouseDragged(MouseEvent e){
-                if(coc.isPlay()){
+                if(coc.isPlay() && coc.isEnter()){
                     if(e.getX()+getInitX()>LEFT_BOUND && e.getX()+getInitX()<RIGHT_BOUND){
                         setCurrentPoint(getInitX()+e.getX()-1, getInitY());
                         coc.updateUI();
@@ -42,7 +42,8 @@ public class Ship extends GameObject implements Runnable{
 
         addMouseListener(new MouseAdapter(){
             public void mouseReleased(MouseEvent e){
-                updateShipPosition();
+                if(coc.isPlay() && coc.isEnter())
+                    updateShipPosition();
             }
         });
     }
@@ -103,6 +104,12 @@ public class Ship extends GameObject implements Runnable{
                 }
             }
         }catch(Exception e){}
+    }
+
+    public void killAllBullets(){
+        for(Bullet b : bullets)
+            b.setAlive(false);
+        removeBullets();
     }
 
     private void updateShipPosition(){;
