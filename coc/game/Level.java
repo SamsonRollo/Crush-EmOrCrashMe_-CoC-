@@ -13,7 +13,7 @@ public class Level {
     public Level(){
         this.level = 1;
         this.ySpeed = 7;
-        this.xSpeed = 0;
+        this.xSpeed = 1;
         this.bulletSpeed = 4;
         this.bulletLag = 12;
         this.bulletLevel = 1;

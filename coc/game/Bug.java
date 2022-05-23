@@ -23,10 +23,14 @@ public class Bug extends GameObject {
         if(shift!=0 && shift==shiftCount) //reverses shift to revers x shift
             shift = -shift;
 
-        if(shift<0 && shift<shiftCount)
-            deltaX = getX()-level.getXSpeed();
-        else if(shift>0 && shift>shiftCount)
+        if(shift<0 && shift<shiftCount){
             deltaX = getX()+level.getXSpeed();
+            shiftCount--;
+        }
+        else if(shift>0 && shift>shiftCount){
+            deltaX = getX()-level.getXSpeed();
+            shiftCount++;
+        }
 
         moveCurrentPoint(deltaX, getY()+level.getYSpeed());
         if(getY()>=420 && !coc.isOverNotif())
