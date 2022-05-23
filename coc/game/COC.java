@@ -180,6 +180,7 @@ public class COC extends JPanel{
     public void removeFloater(){
         getCOC().remove(getMiddler());
         getCOC().remove(getPause());
+        getCOC().updateUI();
     }
 
     public void cleanGame(){
@@ -193,7 +194,6 @@ public class COC extends JPanel{
         playBut.setName("play");
         autoSetIcons(playBut, "play");
         removeFloater();
-        updateUI();
         setOverNotif(false);
         newGame = true;
     }
@@ -208,7 +208,6 @@ public class COC extends JPanel{
         removeFloater();
         setPlay(true);
         showMiddler();
-        updateUI();
         setLevelNotif(false);
     }
 

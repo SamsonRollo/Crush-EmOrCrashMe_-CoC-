@@ -8,6 +8,7 @@ public class Level {
     private int bulletLag;
     private int bulletLevel;
     private int bugLag;
+    private int targetScore;
 
     public Level(){
         this.level = 1;
@@ -16,11 +17,12 @@ public class Level {
         this.bulletSpeed = 4;
         this.bulletLag = 12;
         this.bulletLevel = 1;
-        this.bugLag = 50; //50
+        this.bugLag = 50;
+        this.targetScore = this.level*160+13;
     }
 
     public int getTargetScore(){
-        return this.level*50+13; //back to 160
+        return this.targetScore;
     }
 
     public int getLevel(){
@@ -29,10 +31,20 @@ public class Level {
 
     public void setLevel(int level){
         this.level = level;
+        this.targetScore = this.level*160+13;
+        if(level%2==0 && bulletSpeed>1)
+            this.bulletSpeed--;
+        if(level%2==0 && ySpeed>2)
+            this.ySpeed--;
     }
 
     public void incrementLevel(){
         this.level++;
+        this.targetScore = this.level*160+13;
+        if(this.level%2==0 && bulletSpeed>1)
+            this.bulletSpeed--;
+        if(this.level%3==0 && ySpeed>2)
+            this.ySpeed--;
     }
 
     public int getYSpeed(){

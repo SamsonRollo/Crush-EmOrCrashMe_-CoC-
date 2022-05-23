@@ -21,7 +21,6 @@ public class GameOverPanel extends MenuPanel {
                 coc.remove(getPanel());
                 coc.setButtonsEnabled(true);
                 coc.cleanGame();
-                coc.updateUI();
             }
         });
 

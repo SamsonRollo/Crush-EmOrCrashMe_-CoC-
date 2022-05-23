@@ -34,7 +34,6 @@ public class Ship extends GameObject implements Runnable{
                 if(coc.isPlay() && coc.isEnter()){
                     if(e.getX()+getInitX()>LEFT_BOUND && e.getX()+getInitX()<RIGHT_BOUND){
                         setCurrentPoint(getInitX()+e.getX()-1, getInitY());
-                        coc.updateUI();
                     }
                 }       
             }
@@ -58,8 +57,11 @@ public class Ship extends GameObject implements Runnable{
                 accumLag = 0;
             }
             removeBullets();
-            coc.updateUI();
             accumLag++;
+
+            try{
+                coc.updateUI();
+            }catch(Exception e){}
             try{
                 Thread.sleep(20);
             }catch(Exception e){};

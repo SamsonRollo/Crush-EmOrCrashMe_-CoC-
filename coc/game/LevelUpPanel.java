@@ -21,7 +21,6 @@ public class LevelUpPanel extends MenuPanel {
                 coc.remove(getPanel());
                 coc.setButtonsEnabled(true);
                 coc.newGame();
-                coc.updateUI();
             }
         });
 

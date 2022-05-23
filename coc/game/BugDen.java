@@ -8,6 +8,7 @@ public class BugDen implements Runnable{
     private Level level;
     private ArrayList<Bug> bugs;
     private int colorIdx = 0;
+    private int lastY = 85;
 
     public BugDen(COC coc, Level level, int initLayer){
         this.coc = coc;
@@ -25,12 +26,17 @@ public class BugDen implements Runnable{
                 updateBugs(level);
                 accumLag=0;
             }
-            //if possible create a pattern of bugs
-            //if()//row is cleared create a batch of bugs
-            //createBugs(1); //create if already possible
+
+            if(lastY>=133){
+                createBugs(1);
+                lastY = 85;
+            }
+
             removeBugs();
             accumLag++;
-            coc.updateUI();
+            try{
+                coc.updateUI();
+            }catch (Exception e){}
             try{
                 Thread.sleep(20);
             }catch(Exception e){};
@@ -56,6 +62,7 @@ public class BugDen implements Runnable{
             for(Bug b: bugs)
                 b.update(level);
         }catch(Exception e){}
+        lastY+=level.getYSpeed();
     }
 
     public void removeBugs(){
