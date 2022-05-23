@@ -116,8 +116,12 @@ public class COC extends JPanel{
 
     public void gameThreads(){
         Thread shipThread = new Thread(ship);
-        Thread denThread = new Thread(den);
         shipThread.start();
+        createDenThread();
+    }
+
+    public void createDenThread(){
+        Thread denThread = new Thread(den);
         denThread.start();
     }
 
@@ -133,13 +137,8 @@ public class COC extends JPanel{
     }
 
     public void levelUp(){
-        setLevelNotif(true);
-        setButtonsEnabled(false);
-        setPlay(false);
-        level.incrementLevel();
-        removeFloater();
         LevelUpPanel lp = new LevelUpPanel(getCOC());
-        addFloater(lp);
+        lp.runLevelUp();
     }
 
     public void notifyGameOver(){
@@ -196,19 +195,6 @@ public class COC extends JPanel{
         removeFloater();
         setOverNotif(false);
         newGame = true;
-    }
-
-    public void newGame(){
-        ship.killAllBullets();
-        ship.updateShipPosition();
-        den.killAllBugs();
-        den = new BugDen(getCOC(), level, 4);// 
-        score.resetCurrentLevelScore();
-        updateScoreIMG();
-        removeFloater();
-        setPlay(true);
-        showMiddler();
-        setLevelNotif(false);
     }
 
     public void interactPlayBut(boolean status, boolean fromMenu){
@@ -349,6 +335,10 @@ public class COC extends JPanel{
 
     public Ship getShip(){
         return this.ship;
+    }
+
+    public Score getScore(){
+        return this.score;
     }
 
     public MainClass getMainClass(){

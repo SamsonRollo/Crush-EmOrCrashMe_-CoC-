@@ -9,6 +9,8 @@ public class BugDen implements Runnable{
     private ArrayList<Bug> bugs;
     private int colorIdx = 0;
     private int lastY = 85;
+    private boolean freeze = false;
+    private int threadTimer = 20;
 
     public BugDen(COC coc, Level level, int initLayer){
         this.coc = coc;
@@ -20,9 +22,18 @@ public class BugDen implements Runnable{
     @Override
     public void run() {
         int accumLag = 0;
+        int freezeCtr = 0;
         while(coc.isPlay()){
 
-            if(accumLag>=level.getBugLag()){
+            if(isFreeze()){
+                freezeCtr+=20;
+                if(freezeCtr==4000){
+                    setFreeze(false);
+                    freezeCtr=0;
+                }
+            }
+
+            if((accumLag>=level.getBugLag() || bugs.size()==0) && !isFreeze()){
                 updateBugs(level);
                 accumLag=0;
             }
@@ -38,7 +49,7 @@ public class BugDen implements Runnable{
                 coc.updateUI();
             }catch (Exception e){}
             try{
-                Thread.sleep(20);
+                Thread.sleep(threadTimer);
             }catch(Exception e){};
         }
         
@@ -85,6 +96,15 @@ public class BugDen implements Runnable{
         }catch(Exception e){}
         removeBugs();
     }
+    
+    public void decreaseThreadTimer(){
+        if(this.threadTimer>5)
+            this.threadTimer-=2;
+    }
+
+    public int getThreadTimer(){
+        return this.threadTimer;
+    }
 
     public int getColorIndex(){
         return this.colorIdx;
@@ -92,6 +112,14 @@ public class BugDen implements Runnable{
 
     public void incrementColorIndex(){
         this.colorIdx++;
+    }
+
+    public void setFreeze(boolean freeze){
+        this.freeze = freeze;
+    }
+
+    public boolean isFreeze(){
+        return this.freeze;
     }
 
     public ArrayList<Bug> getBugs(){

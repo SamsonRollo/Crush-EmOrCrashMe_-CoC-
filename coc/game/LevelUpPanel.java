@@ -1,29 +1,35 @@
 package coc.game;
 
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-
-import gen.GameButton;
-
-public class LevelUpPanel extends MenuPanel {
+public class LevelUpPanel extends MenuPanel implements Runnable{
     
     public LevelUpPanel(COC coc){
         this.coc = coc;
         this.path = "coc/src/gamelevelup.png";
         loadElements("over");
 
-        GameButton ok = new GameButton((int)Math.floor(Double.valueOf(getWidth())/2-43), getHeight()-36 , 87, 30);
+        coc.getLevel().incrementLevel();
+        coc.removeFloater();
+        coc.getScore().resetCurrentLevelScore();
+        coc.updateScoreIMG();
+        coc.getShip().decreaseThreadTimer();
+        coc.getDen().decreaseThreadTimer();
+        coc.setLevelNotif(false);
+    }
 
-        autoSetIcons(ok, "ok");
 
-        ok.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent e){
-                coc.remove(getPanel());
-                coc.setButtonsEnabled(true);
-                coc.newGame();
-            }
-        });
+    @Override
+    public void run() {
+        coc.add(this);
+        coc.setComponentZOrder(getPanel(), 0);
+        try{
+            Thread.sleep(2000);
+        }catch(Exception e){}
+        
+        coc.remove(this);
+    }
 
-        add(ok);
+    public void runLevelUp(){
+        Thread levelThread = new Thread(this);
+        levelThread.start();
     }
 }

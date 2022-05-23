@@ -4,6 +4,7 @@ package coc.game;
 import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Random;
 
 import gen.Score;
 
@@ -17,6 +18,7 @@ public class Ship extends GameObject implements Runnable{
     private int speed = 21;
     private ArrayList<Bullet> bullets;
     private Score score;
+    private int threadTimer = 20;
 
     public Ship(COC coc, Score score, int x, int y){
         this.coc = coc;
@@ -50,22 +52,52 @@ public class Ship extends GameObject implements Runnable{
     @Override
     public void run(){
         int accumLag = coc.getLevel().getBulletLag();
+        int bulletUpgradeTimer = 0;
+        int powerupctr = 0;
+        int powerupLag = (new Random().nextInt(6741 + 1 - 810)+810);
         while(coc.isPlay()){
+
+            if(powerupctr>=powerupLag){
+                PowerUp pu = new PowerUp(coc);
+                pu.runPowerUp();
+                powerupctr = 0;
+                powerupLag = (new Random().nextInt(6741 + 1 - 810)+810);
+            }
+
             updateBullets(coc.getLevel().getBulletSpeed());
+
             if(accumLag>=coc.getLevel().getBulletLag()){
                 createBullet();
                 accumLag = 0;
             }
+            if(coc.getLevel().getBulletLevel()==2){
+                bulletUpgradeTimer+=getThreadTimer();
+                if(bulletUpgradeTimer>=5000){
+                    coc.getLevel().setBulletLevel(1);
+                    bulletUpgradeTimer = 0;
+                }
+            }
+
             removeBullets();
             accumLag++;
+            powerupctr++;
 
             try{
                 coc.updateUI();
             }catch(Exception e){}
             try{
-                Thread.sleep(20);
+                Thread.sleep(getThreadTimer());
             }catch(Exception e){};
         }
+    }
+
+    public void decreaseThreadTimer(){
+        if(this.threadTimer>10)
+            this.threadTimer-=2;
+    }
+
+    public int getThreadTimer(){
+        return this.threadTimer;
     }
 
     public void updateBullets(int bulletSpeed){
@@ -100,7 +132,7 @@ public class Ship extends GameObject implements Runnable{
         try{
             for(Bug bug : coc.getDen().getBugs()){
                 if(bullet.getRectangle().intersects(bug.getRectangle())){
-                    bullet.setAlive(false);
+                    bullet.decrementLife();
                     bug.setAlive(false);
                     score.incrementLevelScore(2);
                     score.incrementGameScore(2);

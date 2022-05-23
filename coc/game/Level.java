@@ -17,8 +17,8 @@ public class Level {
         this.bulletSpeed = 4;
         this.bulletLag = 12;
         this.bulletLevel = 1;
-        this.bugLag = 50;
-        this.targetScore = this.level*160+13;
+        this.bugLag = 30;
+        this.targetScore = this.level*91+13;
     }
 
     public int getTargetScore(){
@@ -31,20 +31,26 @@ public class Level {
 
     public void setLevel(int level){
         this.level = level;
-        this.targetScore = this.level*160+13;
-        if(level%2==0 && bulletSpeed>1)
-            this.bulletSpeed--;
-        if(level%2==0 && ySpeed>2)
-            this.ySpeed--;
+        this.targetScore = this.level*91+13;
+        this.bulletSpeed = this.bulletSpeed+(int)Math.floor(level/3) >10 ? 10 : this.bulletSpeed+(int)Math.floor(level/3);
+        this.bulletLag = this.bulletLag-(level*2) < 5 ? 5 : this.bulletLag-(level*2);
+        this.ySpeed = this.ySpeed+(int)Math.floor(level/2) > 20 ? 20 : this.ySpeed+(int)Math.floor(level/2);
+        this.bugLag = this.bugLag-(level*5) < 10 ? 10 : this.bugLag-(level*5);
     }
 
     public void incrementLevel(){
         this.level++;
-        this.targetScore = this.level*160+13;
-        if(this.level%2==0 && bulletSpeed>1)
-            this.bulletSpeed--;
-        if(this.level%3==0 && ySpeed>2)
-            this.ySpeed--;
+        this.targetScore = this.level*91+13;
+        if(this.level%3==0 && bulletSpeed<11)
+            this.bulletSpeed++;
+        if(bulletLag>5)
+            this.bulletLag-=2;
+        if(this.level%2==0 && ySpeed<20)
+            this.ySpeed++;
+        if(bugLag>10)
+            this.bugLag-=5;
+        else if(bugLag-5<10)
+            this.bugLag = 10;
     }
 
     public int getYSpeed(){
@@ -115,8 +121,8 @@ public class Level {
         return this.bulletLevel;
     }
 
-    public void setBulletLevel(int level){
-        this.level = level;
+    public void setBulletLevel(int bulletLevel){
+        this.bulletLevel = bulletLevel;
     }
 
     public int getBugLag(){

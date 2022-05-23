@@ -29,7 +29,7 @@ public class Bug extends GameObject {
             deltaX = getX()+level.getXSpeed();
 
         moveCurrentPoint(deltaX, getY()+level.getYSpeed());
-        if(getY()>=450 && !coc.isOverNotif())
+        if(getY()>=420 && !coc.isOverNotif())
             coc.notifyGameOver();
     }
 
