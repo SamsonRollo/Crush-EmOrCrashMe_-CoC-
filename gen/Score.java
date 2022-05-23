@@ -1,17 +1,20 @@
 package gen;
 
 public class Score {
-    private int score;
+    private int gameScore;
     private int totalScore;
+    private int levelScore;
 
     public Score(){
-        this.score = 0;
+        this.gameScore = 0;
         this.totalScore = 0;
+        this.levelScore = 0;
     }
 
     public Score(int totalScore){
         this.totalScore = totalScore;
-        this.score = 0;
+        this.gameScore = 0;
+        this.levelScore = 0;
     }
 
     public void setTotalScore(int totalScore){
@@ -26,19 +29,35 @@ public class Score {
         return this.totalScore;
     }
 
-    public void setScore(int score){
-        this.score = score;
+    public void setGameScore(int score){
+        this.gameScore = score;
     }
 
-    public void incrementScore(int score){
-        this.score+=score;
+    public void incrementGameScore(int score){
+        this.gameScore+=score;
     }
 
-    public int getScore(){
-        return this.score;
+    public int getGameScore(){
+        return this.gameScore;
     }
 
-    public void resetCurrentScore(){
-        this.score = 0;
+    public void resetCurrentGameScore(){
+        this.gameScore = 0;
+    }
+
+    public void setLevelScore(int levelScore){
+        this.levelScore = levelScore;
+    }
+
+    public void incrementLevelScore(int levelScore){
+        this.levelScore+=levelScore;
+    }
+
+    public int getLevelScore(){
+        return this.levelScore;
+    }
+
+    public void resetCurrentLevelScore(){
+        this.levelScore = 0;
     }
 }

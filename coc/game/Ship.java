@@ -82,14 +82,16 @@ public class Ship extends GameObject implements Runnable{
     }
 
     public void removeBullets(){
-        for (Iterator<Bullet> iterator = bullets.iterator(); iterator.hasNext();) {
-            Bullet bullet = iterator.next();
-            if(!bullet.isAlive()){
-                iterator.remove();
-                coc.remove(bullet);
-                bullet = null;
+        try{
+            for (Iterator<Bullet> iterator = bullets.iterator(); iterator.hasNext();) {
+                Bullet bullet = iterator.next();
+                if(!bullet.isAlive()){
+                    iterator.remove();
+                    coc.remove(bullet);
+                    bullet = null;
+                }
             }
-        }
+        }catch(Exception e){}
     }
 
     public void bugHit(Bullet bullet){
@@ -98,7 +100,8 @@ public class Ship extends GameObject implements Runnable{
                 if(bullet.getRectangle().intersects(bug.getRectangle())){
                     bullet.setAlive(false);
                     bug.setAlive(false);
-                    score.incrementScore(2);
+                    score.incrementLevelScore(2);
+                    score.incrementGameScore(2);
                     coc.updateScoreIMG();
                     return;
                 }
@@ -107,12 +110,14 @@ public class Ship extends GameObject implements Runnable{
     }
 
     public void killAllBullets(){
-        for(Bullet b : bullets)
-            b.setAlive(false);
+        try{
+            for(Bullet b : bullets)
+                b.setAlive(false);
+        }catch(Exception e){}
         removeBullets();
     }
 
-    private void updateShipPosition(){;
+    void updateShipPosition(){;
         setInitPoint(getX(), getY());
         setLocation(getX(), getY());
     }

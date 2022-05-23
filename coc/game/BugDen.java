@@ -52,24 +52,30 @@ public class BugDen implements Runnable{
     }
 
     public void updateBugs(Level level){
-        for(Bug b: bugs)
-            b.update(level);
+        try{
+            for(Bug b: bugs)
+                b.update(level);
+        }catch(Exception e){}
     }
 
     public void removeBugs(){
-        for (Iterator<Bug> iterator = bugs.iterator(); iterator.hasNext();) {
-            Bug bug = iterator.next();
-            if(!bug.isAlive()){
-                iterator.remove();
-                coc.remove(bug);
-                bug = null;
+        try{
+            for (Iterator<Bug> iterator = bugs.iterator(); iterator.hasNext();) {
+                Bug bug = iterator.next();
+                if(!bug.isAlive()){
+                    iterator.remove();
+                    coc.remove(bug);
+                    bug = null;
+                }
             }
-        }
+        }catch(Exception e){}
     }
 
     public void killAllBugs(){
-        for(Bug b : bugs)
-            b.setAlive(false);
+        try{
+            for(Bug b : bugs)
+                b.setAlive(false);
+        }catch(Exception e){}
         removeBugs();
     }
 

@@ -20,9 +20,7 @@ public class LevelUpPanel extends MenuPanel {
             public void actionPerformed(ActionEvent e){
                 coc.remove(getPanel());
                 coc.setButtonsEnabled(true);
-                coc.showMiddler();
-                coc.setLevelNotif(false);//move to coc
-                //resetgame for new batch
+                coc.newGame();
                 coc.updateUI();
             }
         });

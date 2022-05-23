@@ -122,11 +122,13 @@ public class COC extends JPanel{
     }
 
     public void updateScoreIMG(){
-        int curLine = (int)Math.floor((Double.valueOf(score.getScore())/level.getTargetScore())*TOT_SC_IMG.getHeight());
-        curLine = curLine > 100 ? 100 : curLine;
-        if(!isLevelNotif() && curLine==100)
-            levelUp(); 
-        if(curLine<TOT_SC_IMG.getHeight())
+        double percent = Double.valueOf(score.getLevelScore())/level.getTargetScore();
+        int curLine = (int)Math.floor(percent*TOT_SC_IMG.getHeight());
+
+        if(curLine >= TOT_SC_IMG.getHeight()){
+            CUR_SC_IMG = TOT_SC_IMG;
+            levelUp();
+        }else
             CUR_SC_IMG = TOT_SC_IMG.getSubimage(0, TOT_SC_IMG.getHeight()-curLine-1, TOT_SC_IMG.getWidth(), curLine+1);
     }
 
@@ -134,6 +136,7 @@ public class COC extends JPanel{
         setLevelNotif(true);
         setButtonsEnabled(false);
         setPlay(false);
+        level.incrementLevel();
         removeFloater();
         LevelUpPanel lp = new LevelUpPanel(getCOC());
         addFloater(lp);
@@ -184,8 +187,8 @@ public class COC extends JPanel{
         getCOC().remove(ship);
         ship = null;
         den.killAllBugs();
-        score.incrementTotalScore(score.getScore());
-        score.resetCurrentScore(); //maybe preserve this but add score to the main score later
+        score.incrementTotalScore(score.getGameScore());
+        score.resetCurrentGameScore();
         updateScoreIMG();
         playBut.setName("play");
         autoSetIcons(playBut, "play");
@@ -193,6 +196,20 @@ public class COC extends JPanel{
         updateUI();
         setOverNotif(false);
         newGame = true;
+    }
+
+    public void newGame(){
+        ship.killAllBullets();
+        ship.updateShipPosition();
+        den.killAllBugs();
+        den = new BugDen(getCOC(), level, 4);// 
+        score.resetCurrentLevelScore();
+        updateScoreIMG();
+        removeFloater();
+        setPlay(true);
+        showMiddler();
+        updateUI();
+        setLevelNotif(false);
     }
 
     public void interactPlayBut(boolean status, boolean fromMenu){
@@ -357,7 +374,7 @@ public class COC extends JPanel{
 
         g.setColor(Color.black);
         g.setFont(font);
-        g.drawString(String.valueOf(score.getScore()), 44, 50);
+        g.drawString(String.valueOf(score.getGameScore()), 44, 50);
     }
     
 }
