@@ -27,7 +27,7 @@ public class BugDen implements Runnable{
 
             if(isFreeze()){
                 freezeCtr+=20;
-                if(freezeCtr==4000){
+                if(freezeCtr>=4000){
                     setFreeze(false);
                     freezeCtr=0;
                 }

@@ -33,13 +33,16 @@ public class PowerUp extends GameObject implements Runnable{
     public void run() {
         coc.add(getObject());
         coc.setComponentZOrder(getObject(), 0);
-        while(isAlive()){
-            updatePowerUp();
+        while(isAlive() && !coc.isNewGame()){
+            if(coc.isPlay() && coc.isEnter())
+                updatePowerUp();
             try{
                 Thread.sleep(80);
             }catch(Exception e){}
         }
         coc.remove(getObject());
+        if(coc.isNewGame())
+            coc.updateUI();
     }
 
     public void executePowerUp(int selectedPowerUp){

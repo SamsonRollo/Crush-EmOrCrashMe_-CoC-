@@ -19,11 +19,7 @@ public abstract class MenuPanel extends JPanel{
         ImageLoader il = new ImageLoader(path, alt);
         BG = il.getBuffImage();
         
-        setBounds((int)Math.floor(Double.valueOf(coc.getWidth())/2-Double.valueOf(BG.getWidth())/2),
-            120,
-            BG.getWidth(), 
-            BG.getHeight()+40    
-        );
+        setBoundsAux();
     }
 
     protected void autoSetIcons(GameButton button, String name){
@@ -31,6 +27,14 @@ public abstract class MenuPanel extends JPanel{
             "coc/src/normal/"+name+".png",
             "coc/src/hilite/h_"+name+".png",
             name.toUpperCase()
+        );
+    }
+
+    public void setBoundsAux(){
+        setBounds((int)Math.floor(Double.valueOf(coc.getWidth())/2-Double.valueOf(BG.getWidth())/2),
+            120,
+            BG.getWidth(), 
+            BG.getHeight()+40    
         );
     }
 

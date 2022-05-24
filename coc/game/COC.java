@@ -78,7 +78,12 @@ public class COC extends JPanel{
 
         helpBut.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
-                //
+                setButtonsEnabled(false);
+                boolean curPlay = isPlay();
+                setPlay(false);
+                removeFloater();
+                HelpPanel hp = new HelpPanel(getCOC(), curPlay);
+                addFloater(hp);
             }
         });
 
